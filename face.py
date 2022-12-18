@@ -1,17 +1,20 @@
 import cv2
 import sqlite3
 
+
 def create_table():
     # Connect to the database
     conn = sqlite3.connect('faces.db')
     cursor = conn.cursor()
 
     # Create the table if it doesn't exist
-    cursor.execute("CREATE TABLE IF NOT EXISTS faces(id INTEGER PRIMARY KEY, face BLOB, name TEXT)")
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS faces(id INTEGER PRIMARY KEY, face BLOB, name TEXT)")
     conn.commit()
 
     # Close the connection
     conn.close()
+
 
 # Load the cascade classifier
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -42,20 +45,24 @@ while True:
 
         # Extract the face region
         face_region = frame[y:y+h, x:x+w]
+        print("face_region", face_region)
 
         # Check if the face is already in the database
-        cursor.execute("SELECT * FROM faces WHERE face=?", (sqlite3.Binary(face_region),))
+        cursor.execute("SELECT * FROM faces WHERE face=?",
+                       (sqlite3.Binary(face_region),))
         result = cursor.fetchone()
         if result:
             # If the face is in the database, display the name
             name = result[2]
-            cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+            cv2.putText(frame, name, (x, y-10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
         else:
             # If the face is not in the database, ask the user to enter a name
             name = input("Enter name: ")
 
             # Insert the face and name into the database
-            cursor.execute("INSERT INTO faces(face, name) VALUES (?, ?)", (sqlite3.Binary(face_region), name))
+            cursor.execute("INSERT INTO faces(face, name) VALUES (?, ?)",
+                           (sqlite3.Binary(face_region), name))
             conn.commit()
 
     # Display the output
