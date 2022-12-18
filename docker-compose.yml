@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  face-recognition:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python /app/face.py
+    devices:
+      - /dev/video0:/dev/video0
+      # - /dev/video1:/dev/video0
+    volumes:
+      - .:/app
