@@ -1,8 +1,23 @@
 import cv2
 import sqlite3
 
+def create_table():
+    # Connect to the database
+    conn = sqlite3.connect('faces.db')
+    cursor = conn.cursor()
+
+    # Create the table if it doesn't exist
+    cursor.execute("CREATE TABLE IF NOT EXISTS faces(id INTEGER PRIMARY KEY, face BLOB, name TEXT)")
+    conn.commit()
+
+    # Close the connection
+    conn.close()
+
 # Load the cascade classifier
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+# Create the table if it doesn't exist
+create_table()
 
 # Connect to the database
 conn = sqlite3.connect('faces.db')
@@ -33,7 +48,7 @@ while True:
         result = cursor.fetchone()
         if result:
             # If the face is in the database, display the name
-            name = result[1]
+            name = result[2]
             cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
         else:
             # If the face is not in the database, ask the user to enter a name
